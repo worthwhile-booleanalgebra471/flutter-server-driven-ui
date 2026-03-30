@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../expression/expression_context.dart';
+import '../expression/template_engine.dart';
 import '../models/screen_contract.dart';
 import 'component_registry.dart';
 import '../../presentation/widgets/server_badge.dart';
@@ -22,12 +24,19 @@ typedef InputChangeCallback = void Function(String id, String value);
 ///
 /// Layout nodes (column, row, container, listView, card, stack, wrap) process
 /// their children; leaf nodes render directly.
+///
+/// When an [ExpressionContext] is provided, template strings in `props` are
+/// interpolated and the `visible` property on each node is evaluated.
 class ComponentParser {
   final ComponentRegistry _registry;
   final InputChangeCallback? onInputChanged;
+  final ExpressionContext expressionContext;
 
-  ComponentParser({this.onInputChanged})
-      : _registry = ComponentRegistry() {
+  ComponentParser({
+    this.onInputChanged,
+    ExpressionContext? expressionContext,
+  })  : expressionContext = expressionContext ?? const ExpressionContext(),
+        _registry = ComponentRegistry() {
     _registerDefaults();
   }
 
@@ -60,11 +69,57 @@ class ComponentParser {
   }
 
   Widget parse(ComponentNode node, BuildContext context) {
-    final builder = _registry.getBuilder(node.type);
-    if (builder != null) {
-      return builder(node, context, (child) => parse(child, context));
+    if (!TemplateEngine.evaluateVisibility(node.visible, expressionContext)) {
+      return const SizedBox.shrink();
     }
-    return buildUnknownComponent(node, context, (child) => parse(child, context));
+
+    final resolved = _interpolateProps(node);
+
+    final builder = _registry.getBuilder(resolved.type);
+    if (builder != null) {
+      return builder(resolved, context, (child) => parse(child, context));
+    }
+    return buildUnknownComponent(resolved, context, (child) => parse(child, context));
+  }
+
+  /// Walks through [props] and interpolates any string value that
+  /// contains `{{…}}` placeholders.
+  ComponentNode _interpolateProps(ComponentNode node) {
+    if (expressionContext.isEmpty) return node;
+
+    final newProps = _deepInterpolate(node.props);
+    if (identical(newProps, node.props)) return node;
+
+    return ComponentNode(
+      type: node.type,
+      id: node.id,
+      props: newProps,
+      children: node.children,
+      action: node.action,
+      visible: node.visible,
+    );
+  }
+
+  Map<String, dynamic> _deepInterpolate(Map<String, dynamic> map) {
+    var changed = false;
+    final result = <String, dynamic>{};
+
+    for (final entry in map.entries) {
+      final value = entry.value;
+      if (value is String && value.contains('{{')) {
+        final interpolated = TemplateEngine.interpolate(value, expressionContext);
+        result[entry.key] = interpolated;
+        if (interpolated != value) changed = true;
+      } else if (value is Map<String, dynamic>) {
+        final nested = _deepInterpolate(value);
+        result[entry.key] = nested;
+        if (!identical(nested, value)) changed = true;
+      } else {
+        result[entry.key] = value;
+      }
+    }
+
+    return changed ? result : map;
   }
 
   // -------------------------------------------------------------------------

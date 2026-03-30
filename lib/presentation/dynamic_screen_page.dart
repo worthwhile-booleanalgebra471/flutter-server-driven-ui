@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/expression/expression_context.dart';
 import '../core/models/screen_contract.dart';
 import '../core/network/api_client.dart';
 import '../core/parser/component_parser.dart';
@@ -91,6 +92,7 @@ class _DynamicScreenPageState extends InputCollectorState<DynamicScreenPage> {
         final contract = snapshot.data!;
         final parser = ComponentParser(
           onInputChanged: (id, value) => _inputValues[id] = value,
+          expressionContext: ExpressionContext(contract.context),
         );
 
         return Scaffold(
