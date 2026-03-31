@@ -12,13 +12,16 @@ Widget buildServerText(
   final rawStyle = node.props['style'] as Map<String, dynamic>?;
   final style = rawStyle != null ? TextStyleModel.fromJson(rawStyle) : null;
 
-  return Text(
-    content,
-    textAlign: _parseTextAlign(style?.textAlign),
-    style: TextStyle(
-      fontSize: style?.fontSize,
-      fontWeight: _parseFontWeight(style?.fontWeight),
-      color: parseHexColor(style?.color),
+  return Semantics(
+    label: content,
+    child: Text(
+      content,
+      textAlign: _parseTextAlign(style?.textAlign),
+      style: TextStyle(
+        fontSize: style?.fontSize,
+        fontWeight: _parseFontWeight(style?.fontWeight),
+        color: parseHexColor(style?.color),
+      ),
     ),
   );
 }

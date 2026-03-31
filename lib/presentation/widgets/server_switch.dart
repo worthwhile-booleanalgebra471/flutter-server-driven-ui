@@ -48,14 +48,18 @@ class _ServerSwitchState extends State<_ServerSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      title: Text(widget.label),
-      subtitle: widget.subtitle != null ? Text(widget.subtitle!) : null,
-      value: _value,
-      onChanged: (v) {
-        setState(() => _value = v);
-        widget.onChanged?.call(widget.id, v.toString());
-      },
+    return Semantics(
+      toggled: _value,
+      label: widget.label,
+      child: SwitchListTile(
+        title: Text(widget.label),
+        subtitle: widget.subtitle != null ? Text(widget.subtitle!) : null,
+        value: _value,
+        onChanged: (v) {
+          setState(() => _value = v);
+          widget.onChanged?.call(widget.id, v.toString());
+        },
+      ),
     );
   }
 }
