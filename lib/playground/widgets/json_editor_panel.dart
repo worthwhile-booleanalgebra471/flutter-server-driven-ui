@@ -2,11 +2,23 @@ import 'package:flutter/material.dart';
 
 import 'json_syntax_highlighter.dart';
 
-/// Dark-themed JSON editor with real-time syntax highlighting.
-///
-/// Uses a transparent [TextField] overlaid on a [CustomPaint] layer that
-/// renders the highlighted text. This avoids fighting with
-/// [TextEditingController] while keeping standard cursor / selection UX.
+/// Controller that overrides [buildTextSpan] to return syntax-highlighted
+/// spans directly, keeping native cursor, selection and scroll behaviour.
+class _HighlightingController extends TextEditingController {
+  _HighlightingController({super.text});
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final spans = JsonSyntaxHighlighter.highlight(text);
+    return TextSpan(style: style, children: spans);
+  }
+}
+
+/// Dark-themed JSON editor with real-time syntax highlighting and line numbers.
 class JsonEditorPanel extends StatefulWidget {
   final TextEditingController controller;
 
@@ -17,30 +29,53 @@ class JsonEditorPanel extends StatefulWidget {
 }
 
 class _JsonEditorPanelState extends State<JsonEditorPanel> {
-  final _scrollController = ScrollController();
-  late final _LineNumberNotifier _lineNotifier;
+  late final _HighlightingController _highlightController;
 
   @override
   void initState() {
     super.initState();
-    _lineNotifier = _LineNumberNotifier(widget.controller);
-    widget.controller.addListener(_onChanged);
+    _highlightController = _HighlightingController(text: widget.controller.text);
+
+    widget.controller.addListener(_syncToHighlight);
+    _highlightController.addListener(_syncFromHighlight);
   }
 
-  void _onChanged() => _lineNotifier.refresh();
+  /// Keep the highlighting controller in sync when the parent controller changes
+  /// (e.g. format JSON, load screen, clear).
+  void _syncToHighlight() {
+    if (_updatingFrom) return;
+    _updatingTo = true;
+    if (_highlightController.text != widget.controller.text) {
+      _highlightController.text = widget.controller.text;
+    }
+    _updatingTo = false;
+  }
+
+  /// Push edits from the highlighting controller back to the parent.
+  void _syncFromHighlight() {
+    if (_updatingTo) return;
+    _updatingFrom = true;
+    if (widget.controller.text != _highlightController.text) {
+      widget.controller.text = _highlightController.text;
+    }
+    _updatingFrom = false;
+  }
+
+  bool _updatingTo = false;
+  bool _updatingFrom = false;
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onChanged);
-    _lineNotifier.dispose();
-    _scrollController.dispose();
+    widget.controller.removeListener(_syncToHighlight);
+    _highlightController.removeListener(_syncFromHighlight);
+    _highlightController.dispose();
     super.dispose();
   }
 
   static const _monoStyle = TextStyle(
     fontFamily: 'monospace',
     fontSize: 13,
-    color: Colors.transparent,
+    color: Color(0xFFD4D4D4),
     height: 1.6,
   );
 
@@ -59,9 +94,10 @@ class _JsonEditorPanelState extends State<JsonEditorPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Line numbers gutter
-          ValueListenableBuilder<int>(
-            valueListenable: _lineNotifier,
-            builder: (_, lineCount, _) {
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _highlightController,
+            builder: (_, value, _) {
+              final lineCount = '\n'.allMatches(value.text).length + 1;
               return Container(
                 width: 48,
                 padding: const EdgeInsets.only(top: 16, right: 8),
@@ -75,70 +111,25 @@ class _JsonEditorPanelState extends State<JsonEditorPanel> {
             },
           ),
           Container(width: 1, color: const Color(0xFF333333)),
+          // Editor
           Expanded(
-            child: Stack(
-              children: [
-                // Highlighted layer (behind)
-                Positioned.fill(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    child: ValueListenableBuilder<int>(
-                      valueListenable: _lineNotifier,
-                      builder: (_, _, _) {
-                        return Text.rich(
-                          TextSpan(
-                            children: JsonSyntaxHighlighter.highlight(
-                              widget.controller.text,
-                            ),
-                          ),
-                          style: _monoStyle.copyWith(
-                            color: const Color(0xFFD4D4D4),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                // Editable layer (transparent text, real cursor)
-                Positioned.fill(
-                  child: TextField(
-                    controller: widget.controller,
-                    scrollController: _scrollController,
-                    maxLines: null,
-                    expands: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    style: _monoStyle,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(16),
-                      border: InputBorder.none,
-                      hintText: 'Paste or type your JSON contract here...',
-                      hintStyle: TextStyle(color: Color(0xFF555555)),
-                    ),
-                    cursorColor: const Color(0xFF569CD6),
-                  ),
-                ),
-              ],
+            child: TextField(
+              controller: _highlightController,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: _monoStyle,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.all(16),
+                border: InputBorder.none,
+                hintText: 'Paste or type your JSON contract here...',
+                hintStyle: TextStyle(color: Color(0xFF555555)),
+              ),
+              cursorColor: const Color(0xFF569CD6),
             ),
           ),
         ],
       ),
     );
   }
-}
-
-/// Lightweight notifier that tracks line count changes to rebuild
-/// line-number gutter and syntax-highlight overlay.
-class _LineNumberNotifier extends ValueNotifier<int> {
-  final TextEditingController _controller;
-
-  _LineNumberNotifier(this._controller)
-      : super(_countLines(_controller.text));
-
-  void refresh() {
-    value = _countLines(_controller.text);
-  }
-
-  static int _countLines(String text) =>
-      '\n'.allMatches(text).length + 1;
 }
