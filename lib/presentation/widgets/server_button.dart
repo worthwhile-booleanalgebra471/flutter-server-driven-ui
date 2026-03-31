@@ -17,19 +17,23 @@ Widget buildServerButton(
   final textColor = parseHexColor(style?.textColor) ?? Colors.white;
   final radius = style?.borderRadius ?? 8.0;
 
-  return SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: textColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius),
+  return Semantics(
+    button: true,
+    label: label,
+    child: SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 14),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        onPressed: () => handleAction(context, node.action),
+        child: Text(label, style: const TextStyle(fontSize: 16)),
       ),
-      onPressed: () => handleAction(context, node.action),
-      child: Text(label, style: const TextStyle(fontSize: 16)),
     ),
   );
 }
